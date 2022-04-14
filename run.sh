@@ -27,6 +27,9 @@ init-config)
   ;;
 
 ^$|run)
+  sed -i "s#_TIMEZONE_#${TIMEZONE}#" /etc/php/7.4/apache2/conf.d/30-zendto.ini
+  sed -i "s#_MAX_POST_SIZE_#${MAX_POST_SIZE}#" /etc/php/7.4/apache2/conf.d/30-zendto.ini
+  cat /etc/php/7.4/apache2/conf.d/30-zendto.ini
   mkdir -p /var/zendto/tmp
   chown -R www-data /var/zendto
   /usr/sbin/cron -f -L7 &

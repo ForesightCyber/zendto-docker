@@ -33,3 +33,9 @@ docker run -d \
   -v /etc/zendto/templates:/opt/zendto/templates \
   limosek/zendto
 ```
+
+If you want to modify more settings, you can use docker environment
+variables.
+
+- TIMEZONE 
+- MAX_POST_SIZE
