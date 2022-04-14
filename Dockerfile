@@ -1,9 +1,8 @@
 FROM debian:bullseye
-#
-#
-#
 MAINTAINER <lukas@foresightcyber.com>
 
+ARG UPGRADE_ON_START=no
+ENV UPGRADE_ON_START=${UPGRADE_ON_START}
 
 # Install packages
 RUN apt update
@@ -17,11 +16,15 @@ RUN apt -y install -f
 RUN apt update
 RUN apt -y install zendto
 RUN a2enmod rewrite
-
+RUN mkdir /opt/zendto/config.orig
+RUN cp -R /opt/zendto/config/* /opt/zendto/config.orig
+RUN mkdir /opt/zendto/templates.orig
+RUN cp -R /opt/zendto/templates/* /opt/zendto/templates.orig
 COPY apache.conf /etc/apache2/sites-enabled/000-default.conf
 COPY run.sh /
 COPY zendto.ini /etc/php/7.4/apache2/conf.d/30-zendto.ini
 
-CMD ["/run.sh"]
+ENTRYPOINT [ "/run.sh" ]
+CMD ["run"]
 
 EXPOSE 80

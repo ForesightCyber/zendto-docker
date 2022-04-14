@@ -2,10 +2,47 @@
 
 . /etc/profile
 
-/opt/zendto/bin/upgrade
-mkdir /var/zendto/tmp
-chown -R www-data /var/zendto
+case $1 in
 
-/usr/sbin/cron
-rm -f /var/run/apache2/*pid
-apache2ctl -D FOREGROUND
+listusers|deleteuser|setpassword|adduser)
+  cmnd=$1
+  shift
+  /opt/zendto/bin/$cmnd /opt/zendto/config/preferences.php $* 
+  ;;
+
+upgrade)
+  shift
+  /opt/zendto/bin/upgrade $*
+  ;;
+  
+init-config)
+  if ! [ -f /opt/zendto/config/preferences.php ]; then
+    cp -v /opt/zendto/config.orig/* /opt/zendto/config/
+    cp -v /opt/zendto/templates.orig/* /opt/zendto/templates/
+  else
+    echo "There is already configuration in place. Will not overwrite! Exiting."
+    echo "Did you mount /opt/zendto/config outside of docker image?"
+    exit 3
+  fi
+  ;;
+
+^$|run)
+  mkdir -p /var/zendto/tmp
+  chown -R www-data /var/zendto
+  /usr/sbin/cron -f -L7 &
+  rm -f /var/run/apache2/*pid
+  tail -f /var/log/zendto/zendto.log &
+  apache2ctl -D FOREGROUND
+  ;;
+  
+sh|bash)
+  bash
+  ;;
+
+*)
+  echo "Incorrect command $*"
+  echo "Enter correct command: init-config|listusers|deleteuser|setpassword|adduser|upgrade|run|sh"
+  exit 2
+  ;;
+esac
+
